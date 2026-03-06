@@ -1,0 +1,14 @@
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/bin/Debug/net10.0/FirstSession
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/bin/Debug/net10.0/FirstSession.deps.json
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/bin/Debug/net10.0/FirstSession.runtimeconfig.json
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/bin/Debug/net10.0/FirstSession.dll
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/bin/Debug/net10.0/FirstSession.pdb
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/obj/Debug/net10.0/FirstSession.GeneratedMSBuildEditorConfig.editorconfig
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/obj/Debug/net10.0/FirstSession.AssemblyInfoInputs.cache
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/obj/Debug/net10.0/FirstSession.AssemblyInfo.cs
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/obj/Debug/net10.0/FirstSession.csproj.CoreCompileInputs.cache
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/obj/Debug/net10.0/FirstSession.dll
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/obj/Debug/net10.0/refint/FirstSession.dll
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/obj/Debug/net10.0/FirstSession.pdb
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/obj/Debug/net10.0/FirstSession.genruntimeconfig.cache
+/Users/thilotobias/Documents/Programmering/C_sharp_øving/FirstSession/obj/Debug/net10.0/ref/FirstSession.dll
