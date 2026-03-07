@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace UniversitetsSystem
 {
@@ -6,10 +7,12 @@ namespace UniversitetsSystem
     {
         static void Main(string[] args)
         {
-          Student Thilo = new Student("s100", "Thilo", "thilo@gmail.com");
-          Thilo.VisInfo();
-          Console.WriteLine("Trykk Enter for å gå til menyen...");
-          Console.ReadLine();
+            // Lister for Stduent og Course objekter som er laget
+            List<Student> students = new List<Student>();
+            List<Course> courses = new List<Course>();
+
+            students.Add(new Student("S100", "Ola Nordmann", "ola@uia.no"));
+            students.Add(new Student("S101", "Kari Hansen", "kari@uia.no"));
 
             // Denne delen velger
             bool kjører = true;
@@ -36,15 +39,15 @@ namespace UniversitetsSystem
                 switch (valg)
                 {
                     case "1":
-                        Console.WriteLine("Du valgte: Opprett kurs");
+                        OpprettKurs(courses);
                         break;
 
                     case "2":
-                        Console.WriteLine("Du valgte: Meld student til kurs");
+                        MeldStudentTilKurs(students, courses);
                         break;
 
                     case "3":
-                        Console.WriteLine("Du valgte: Print kurs og deltagere");
+                        PrintKursOgDeltagere(courses);
                         break;
 
                     case "4":
@@ -77,12 +80,140 @@ namespace UniversitetsSystem
                         break;
                 }
 
-                if (kjører)
+                if (kjører) 
                 {
                     Console.WriteLine("\nTrykk Enter for å fortsette...");
                     Console.ReadLine();
                 }
             }
+        
+        }
+        // Metode for å opprette kurs
+        static void OpprettKurs(List<Course> courses)
+        {
+            Console.Write("Skriv inn kurskode: ");
+            string code = Console.ReadLine();
+
+            Console.Write("Skriv inn kursnavn: ");
+            string name = Console.ReadLine();
+
+            int credits;
+
+            Console.WriteLine("Hvor mange studiepoeng gir kurset?");
+            // While loop som tester at inputen kan converteres fra string til int
+            while (!int.TryParse(Console.ReadLine(), out credits))
+            {
+                Console.Write("Ugyldig input. Skriv et tall: ");
+            }
+
+            int maxStudents;
+
+            Console.WriteLine("Hva er max antall studenter?");
+            // While loop som tester at inputen kan converteres fra string til int
+            while (!int.TryParse(Console.ReadLine(), out maxStudents))
+            {
+                Console.WriteLine("Ugyldig input. Skriv et tall:");
+            }
+
+            Course nyttKurs = new Course(code, name, credits, maxStudents);
+            courses.Add(nyttKurs);
+
+            Console.WriteLine("Kurset ble opprettet.");
+        }
+
+        // Metode for å printe hvilke kurs som er opprettet og deltagerne i kurset
+        static void PrintKursOgDeltagere(List<Course> courses)
+        {   
+            // hvis lengden på Course listen er null er den tom og ingen kurs er opprettet
+            if (courses.Count == 0)
+            {
+                Console.WriteLine("Ingen kurs er opprettet ennå.");
+                return;
+            }
+
+            // loop som går for hvert Course objekt i course listen
+            foreach (Course course in courses)
+            {
+                Console.WriteLine($"\nKurskode: {course.Code}");
+                Console.WriteLine($"Navn: {course.Name}");
+                Console.WriteLine($"Studiepoeng: {course.Credits}");
+                Console.WriteLine($"Maks studenter: {course.MaxStudents}");
+                Console.WriteLine($"Antall påmeldte: {course.Students.Count}");
+
+                if (course.Students.Count == 0)
+                {
+                    Console.WriteLine("Ingen studenter er meldt på dette kurset.");
+                }
+                else
+                {
+                    Console.WriteLine("Deltagere:");
+                    // Printer hver deltager i kurset
+                    foreach (Student student in course.Students)
+                    {
+                        Console.WriteLine($"- {student.Navn} ({student.StudentID})");
+                    }
+                }
+            }
+        }
+
+        static void MeldStudentTilKurs(List<Student> students, List<Course> courses)
+        {
+            Console.Write("Skriv inn StudentID: ");
+            string studentId = Console.ReadLine();
+
+            Console.Write("Skriv inn kurskode: ");
+            string courseCode = Console.ReadLine();
+
+            Student funnetStudent = null;
+            Course funnetKurs = null;
+
+            foreach (Student student in students)
+            {
+                if (student.StudentID == studentId)
+                {
+                    funnetStudent = student;
+                    break;
+                }
+            }
+
+            foreach (Course course in courses)
+            {
+                if (course.Code == courseCode)
+                {
+                    funnetKurs = course;
+                    break;
+                }
+            }
+
+            if (funnetStudent == null)
+            {
+                Console.WriteLine("Fant ikke student.");
+                return;
+            }
+
+            if (funnetKurs == null)
+            {
+                Console.WriteLine("Fant ikke kurs.");
+                return;
+            }
+
+            if (funnetKurs.Students.Count >= funnetKurs.MaxStudents)
+            {
+                Console.WriteLine("Kurset er fullt.");
+                return;
+            }
+
+            foreach (Student student in funnetKurs.Students)
+            {
+                if (student.StudentID == funnetStudent.StudentID)
+                {
+                    Console.WriteLine("Studenten er allerede meldt på kurset.");
+                    return;
+                }
+            }
+
+            funnetKurs.Students.Add(funnetStudent);
+            Console.WriteLine("Studenten ble meldt på kurset.");
         }
     }
 }
