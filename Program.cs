@@ -164,9 +164,11 @@ namespace UniversitetsSystem
             Console.Write("Skriv inn kurskode: ");
             string courseCode = Console.ReadLine();
 
+            // Referanser til Student ogCourse klassene
             Student funnetStudent = null;
             Course funnetKurs = null;
 
+            // Sjekker listene om input matcher 
             foreach (Student student in students)
             {
                 if (student.StudentID == studentId)
@@ -185,6 +187,7 @@ namespace UniversitetsSystem
                 }
             }
 
+            // Hvis ikke det er noe match får bruke beskjed
             if (funnetStudent == null)
             {
                 Console.WriteLine("Fant ikke student.");
@@ -196,13 +199,14 @@ namespace UniversitetsSystem
                 Console.WriteLine("Fant ikke kurs.");
                 return;
             }
-
+            
             if (funnetKurs.Students.Count >= funnetKurs.MaxStudents)
             {
                 Console.WriteLine("Kurset er fullt.");
                 return;
             }
 
+            // Sier ifra at student allerede er i kurset hvis navnet eksisterer
             foreach (Student student in funnetKurs.Students)
             {
                 if (student.StudentID == funnetStudent.StudentID)
@@ -212,6 +216,7 @@ namespace UniversitetsSystem
                 }
             }
 
+            // Hvis alt stemmer blir student lagt til i kurset og får tilbakemelding
             funnetKurs.Students.Add(funnetStudent);
             Console.WriteLine("Studenten ble meldt på kurset.");
         }
