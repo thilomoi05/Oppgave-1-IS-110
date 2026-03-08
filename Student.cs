@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace UniversitetsSystem
 {
-    public class Student : User // Sier at Student er en arv av User klassen
+    public class Student : User, IBorrower // Sier at Student er en arv av User klassen og bruker IBorrower interface
     {
         public string StudentID { get; set; }
 
@@ -24,6 +24,17 @@ namespace UniversitetsSystem
         public override void PrintInfo()
         {
             Console.WriteLine($"Student: {Name} ({StudentID}) - {Email}");
+        }
+        
+        // IBorrower metoder
+        public string GetBorrowerId()
+        {
+            return StudentID;
+        }
+
+        public string GetBorrowerName()
+        {
+            return Name;
         }
     }
 }

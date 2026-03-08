@@ -22,10 +22,13 @@ namespace UniversitetsSystem
             // Lister for Stduent og Course objekter som er laget
             List<Student> students = new List<Student>();
             List<Course> courses = new List<Course>();
+            List<Employee> employees = new List<Employee>();
+            List<Book> books = new List<Book>();
+            List<Loan> loans = new List<Loan>();
 
             students.Add(new Student("S100", "Ola Nordmann", "ola@uia.no"));
             students.Add(new Student("S101", "Kari Hansen", "kari@uia.no"));
-
+            employees.Add(new Employee("E200", "Anne Hansen", "anne@uia.no", "Bibliotekar", "Bibliotek"));
             // Denne delen velger
             bool kjører = true;
 
@@ -67,19 +70,19 @@ namespace UniversitetsSystem
                         break;
 
                     case "5":
-                        Console.WriteLine("Du valgte: Søk på bok");
+                        SøkPåBok(books);
                         break;
 
                     case "6":
-                        Console.WriteLine("Du valgte: Lån bok");
+                        LånBok(students, employees, books, loans);
                         break;
 
                     case "7":
-                        Console.WriteLine("Du valgte: Returner bok");
+                        ReturnerBok(loans);
                         break;
 
                     case "8":
-                        Console.WriteLine("Du valgte: Registrer bok");
+                        RegistrerBok(books);
                         break;
 
                     case "0":
@@ -232,6 +235,177 @@ namespace UniversitetsSystem
             funnetKurs.Students.Add(funnetStudent);
             Console.WriteLine("Studenten ble meldt på kurset.");
         }
+        
+        // Metode som lar brukeren registrere en ny bok ved å fylle inn informasjon som trengs
+        static void RegistrerBok(List<Book> books)
+        {
+            Console.Write("Skriv inn bok-ID: ");
+            string id = Console.ReadLine();
+
+            Console.Write("Skriv inn tittel: ");
+            string title = Console.ReadLine();
+
+            Console.Write("Skriv inn forfatter: ");
+            string author = Console.ReadLine();
+
+            Console.Write("Skriv inn årstall: ");
+            int year = int.Parse(Console.ReadLine());
+
+            Console.Write("Skriv inn antall eksemplarer: ");
+            int copies = int.Parse(Console.ReadLine());
+
+            Book newBook = new Book(id, title, author, year, copies);
+            books.Add(newBook);
+
+            Console.WriteLine("Boken ble registrert.");
+        }
+
+        // Metode for at bruker skal søke etter bok med navn eller bokID
+        static void SøkPåBok(List<Book> books)
+        {
+            Console.Write("Skriv inn boktittel eller ID: ");
+            string søk = Console.ReadLine();
+
+            bool fantNoe = false;
+
+            // Loop som sjekker alle bøker i bok lista for input
+            foreach (Book book in books)
+            {
+                if (book.Title.ToLower().Contains(søk.ToLower()) || book.Id.ToLower() == søk.ToLower())
+                {
+                    book.PrintInfo(); // Bokinformasjon printes hvis det er en match
+                    fantNoe = true; // Og fantNoe blir true
+                }
+            }
+
+            if (!fantNoe) // Hvis fantNoe fortsatt er false etter foreach loopen finnes ikke boka
+            {
+                Console.WriteLine("Fant ingen bøker.");
+            }
+        }
+
+        // Metode for at bruker kan låne bok
+        static void LånBok(List<Student> students, List<Employee> employees, List<Book> books, List<Loan> loans)
+        {   
+            // Får bokID av bruker
+            Console.Write("Skriv inn bok-ID: ");
+            string bookId = Console.ReadLine();
+
+            Book funnetBok = null;
+
+            // Sjekker om boka finnes 
+            foreach (Book book in books)
+            {
+                if (book.Id == bookId)
+                {
+                    funnetBok = book;
+                    break;
+                }
+            }
+
+
+            if (funnetBok == null)
+            {
+                Console.WriteLine("Fant ikke bok."); // Hvis ikke boka finnes får bruker beskjed
+                return;
+            }
+
+            if (funnetBok.AvailableCopies <= 0)
+            {
+                Console.WriteLine("Ingen eksemplarer tilgjengelig."); // Hvis alle bøkene er lånt ut får bruker beskjed
+                return;
+            }
+
+            Console.Write("Er låner [1] Student eller [2] Ansatt? "); // Sjekker om låner er student eller ansatt
+            string valg = Console.ReadLine();
+
+            IBorrower borrower = null;
+
+            if (valg == "1")
+            {
+                Console.Write("Skriv inn StudentID: "); // Skrive inn studentID hvis student
+                string studentId = Console.ReadLine();
+
+                // Sjekker om student finnes
+                foreach (Student student in students)
+                {
+                    if (student.StudentID == studentId)
+                    {
+                        borrower = student;
+                        break;
+                    }
+                }
+            }
+            else if (valg == "2")
+            {
+                Console.Write("Skriv inn EmployeeID: ");
+                string employeeId = Console.ReadLine();
+
+                foreach (Employee employee in employees)
+                {
+                    if (employee.EmployeeID == employeeId)
+                    {
+                        borrower = employee;
+                        break;
+                    }
+                }
+            }
+
+            if (borrower == null)
+            {
+                Console.WriteLine("Fant ikke låner."); // Beskjed hvis ikke låner er funnet i systemet
+                return;
+            }
+
+            // Oppdaterer informasjon hvis lån blir gjennomført
+            string loanId = "L" + (loans.Count + 1);
+            Loan nyttLån = new Loan(loanId, funnetBok, borrower);
+
+            loans.Add(nyttLån);
+            funnetBok.AvailableCopies--;
+
+            Console.WriteLine("Boken ble lånt ut.");
+            nyttLån.PrintInfo();
+        }
+
+        // Metode for å returnere bok
+        static void ReturnerBok(List<Loan> loans)
+        {   
+            // Input for hvilken bok som skal returneres
+            Console.Write("Skriv inn låne-ID: ");
+            string loanId = Console.ReadLine();
+
+            Loan funnetLån = null;
+
+            // Sjekker etter lånt bok
+            foreach (Loan loan in loans)
+            {
+                if (loan.LoanId == loanId)
+                {
+                    funnetLån = loan;
+                    break;
+                }
+            }
+
+            if (funnetLån == null)
+            {
+                Console.WriteLine("Fant ikke lån.");
+                return;
+            }
+
+            if (funnetLån.IsReturned)
+            {
+                Console.WriteLine("Boken er allerede returnert.");
+                return;
+            }
+
+            // Oppdaterer etter bok er returnert
+            funnetLån.IsReturned = true;
+            funnetLån.Book.AvailableCopies++;
+
+            Console.WriteLine("Boken ble returnert.");
+        }
+
     }
 }
 
