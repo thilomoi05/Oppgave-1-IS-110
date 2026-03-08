@@ -1,21 +1,29 @@
+using System;
+using System.Collections.Generic;
+
 namespace UniversitetsSystem
 {
-    public class Student
+    public class Student : User
     {
         public string StudentID { get; set; }
-        public string Navn { get; set; }
-        public string Epost { get; set; }
 
-        public Student(string studentID, string navn, string epost)
+        public List<Course> Courses { get; set; }
+
+        public Student(string studentID, string name, string email)
+            : base(name, email)
         {
-            this.StudentID = studentID;
-            this.Navn = navn;
-            this.Epost = epost;
+            StudentID = studentID;
+            Courses = new List<Course>();
         }
 
-        public void VisInfo()
+        public override string GetID()
         {
-            Console.WriteLine($"StudentID: {StudentID}, Navn: {Navn}, E-post: {Epost}");
+            return StudentID;
+        }
+
+        public override void PrintInfo()
+        {
+            Console.WriteLine($"Student: {Name} ({StudentID}) - {Email}");
         }
     }
 }

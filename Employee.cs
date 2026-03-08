@@ -1,0 +1,27 @@
+namespace UniversitetsSystem
+{
+    public class Employee : User
+    {
+        public string EmployeeID { get; set; }
+        public string Position { get; set; }
+        public string Department { get; set; }
+
+        public Employee(string employeeID, string name, string email, string position, string department)
+            : base(name, email)
+        {
+            EmployeeID = employeeID;
+            Position = position;
+            Department = department;
+        }
+
+        public override string GetID()
+        {
+            return EmployeeID;
+        }
+
+        public override void PrintInfo()
+        {
+            Console.WriteLine($"Ansatt: {Name} ({EmployeeID}) - {Position} - {Department}");
+        }
+    }
+}
