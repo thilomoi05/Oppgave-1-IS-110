@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Generic; // Må være med når lister blir tatt i bruk
 
 namespace UniversitetsSystem
 {
@@ -10,9 +10,9 @@ namespace UniversitetsSystem
         public int Credits { get; set; }
         public int MaxStudents { get; set; }
 
-        public List<Student> Students { get; set; }
+        public List<Student> Students { get; set; } // Liste over hvilke studenter som er med i kurset
 
-        public Course(string code, string name, int credits, int maxStudents)
+        public Course(string code, string name, int credits, int maxStudents) // Konstruktør for Course klassen
         {
             this.Code = code;
             this.Name = name;

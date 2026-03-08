@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace UniversitetsSystem
 {
-    public class Student : User
+    public class Student : User // Sier at Student er en arv av User klassen
     {
         public string StudentID { get; set; }
 

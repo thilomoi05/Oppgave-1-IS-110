@@ -6,7 +6,19 @@ namespace UniversitetsSystem
     class Program
     {
         static void Main(string[] args)
-        {
+        {   
+
+            User u1 = new Student("S200", "Per Olsen", "per@uia.no");
+            User u2 = new Employee("E10", "Anne Hansen", "anne@uia.no", "Foreleser", "IT");
+            User u3 = new ExchangeStudent("S300", "Jean Dupont", "jean@paris.fr", "Sorbonne", "France");
+
+            u1.PrintInfo();
+            u2.PrintInfo();
+            u3.PrintInfo();
+
+            Console.WriteLine("Trykk Enter...");
+            Console.ReadLine();
+
             // Lister for Stduent og Course objekter som er laget
             List<Student> students = new List<Student>();
             List<Course> courses = new List<Course>();
@@ -150,7 +162,7 @@ namespace UniversitetsSystem
                     // Printer hver deltager i kurset
                     foreach (Student student in course.Students)
                     {
-                        Console.WriteLine($"- {student.Navn} ({student.StudentID})");
+                        Console.WriteLine($"- {student.Name} ({student.StudentID})");
                     }
                 }
             }
