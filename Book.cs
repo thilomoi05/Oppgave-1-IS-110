@@ -25,5 +25,24 @@ namespace UniversitetsSystem
         {
             Console.WriteLine($"{Id} - {Title} av {Author} ({Year}) | Tilgjengelig: {AvailableCopies}/{TotalCopies}");
         }
+
+        public bool BorrowCopy()
+        {
+            if (AvailableCopies <= 0)
+            {
+                return false;
+            }
+
+            AvailableCopies--;
+            return true;
+        }
+
+        public void ReturnCopy()
+        {
+            if (AvailableCopies < TotalCopies)
+            {
+                AvailableCopies++;
+            }
+        }
     }
 }

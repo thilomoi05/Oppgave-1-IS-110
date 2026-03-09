@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace UniversitetsSystem
 {
@@ -65,8 +66,8 @@ namespace UniversitetsSystem
                         PrintKursOgDeltagere(courses);
                         break;
 
-                    case "4":
-                        Console.WriteLine("Du valgte: Søk på kurs");
+                   case "4":
+                        SøkPåKurs(courses);
                         break;
 
                     case "5":
@@ -179,28 +180,9 @@ namespace UniversitetsSystem
             Console.Write("Skriv inn kurskode: ");
             string courseCode = Console.ReadLine();
 
-            // Referanser til Student ogCourse klassene
-            Student funnetStudent = null;
-            Course funnetKurs = null;
-
-            // Sjekker listene om input matcher 
-            foreach (Student student in students)
-            {
-                if (student.StudentID == studentId)
-                {
-                    funnetStudent = student;
-                    break;
-                }
-            }
-
-            foreach (Course course in courses)
-            {
-                if (course.Code == courseCode)
-                {
-                    funnetKurs = course;
-                    break;
-                }
-            }
+            // LINQ søk etter student
+            Student funnetStudent = students.FirstOrDefault(student => student.StudentID == studentId);
+            Course funnetKurs = courses.FirstOrDefault(course => course.Code == courseCode);
 
             // Hvis ikke det er noe match får bruke beskjed
             if (funnetStudent == null)
@@ -222,18 +204,27 @@ namespace UniversitetsSystem
             }
 
             // Sier ifra at student allerede er i kurset hvis navnet eksisterer
-            foreach (Student student in funnetKurs.Students)
+            bool alleredePåmeldt = funnetKurs.Students
+                .Any(student => student.StudentID == funnetStudent.StudentID);
+
+            if (alleredePåmeldt)
             {
-                if (student.StudentID == funnetStudent.StudentID)
-                {
-                    Console.WriteLine("Studenten er allerede meldt på kurset.");
-                    return;
-                }
+                Console.WriteLine("Studenten er allerede meldt på kurset.");
+                return;
             }
 
             // Hvis alt stemmer blir student lagt til i kurset og får tilbakemelding
-            funnetKurs.Students.Add(funnetStudent);
-            Console.WriteLine("Studenten ble meldt på kurset.");
+            bool success = funnetKurs.EnrollStudent(funnetStudent);
+
+            if (success)
+            {
+                Console.WriteLine("Studenten ble meldt på kurset.");
+            }
+            else
+            {
+                Console.WriteLine("Kunne ikke melde studenten på kurset.");
+            }
+
         }
         
         // Metode som lar brukeren registrere en ny bok ved å fylle inn informasjon som trengs
@@ -266,21 +257,22 @@ namespace UniversitetsSystem
             Console.Write("Skriv inn boktittel eller ID: ");
             string søk = Console.ReadLine();
 
-            bool fantNoe = false;
+            var resultater = books
+                .Where(book =>
+                    book.Title.ToLower().Contains(søk.ToLower()) ||
+                    book.Id.ToLower() == søk.ToLower())
+                .ToList();
 
-            // Loop som sjekker alle bøker i bok lista for input
-            foreach (Book book in books)
-            {
-                if (book.Title.ToLower().Contains(søk.ToLower()) || book.Id.ToLower() == søk.ToLower())
-                {
-                    book.PrintInfo(); // Bokinformasjon printes hvis det er en match
-                    fantNoe = true; // Og fantNoe blir true
-                }
-            }
-
-            if (!fantNoe) // Hvis fantNoe fortsatt er false etter foreach loopen finnes ikke boka
+            if (resultater.Count == 0)
             {
                 Console.WriteLine("Fant ingen bøker.");
+                return;
+            }
+
+            Console.WriteLine("\nTreff:");
+            foreach (Book book in resultater)
+            {
+                book.PrintInfo();
             }
         }
 
@@ -291,17 +283,8 @@ namespace UniversitetsSystem
             Console.Write("Skriv inn bok-ID: ");
             string bookId = Console.ReadLine();
 
-            Book funnetBok = null;
-
-            // Sjekker om boka finnes 
-            foreach (Book book in books)
-            {
-                if (book.Id == bookId)
-                {
-                    funnetBok = book;
-                    break;
-                }
-            }
+            // Sjekker om bok finnes
+           Book funnetBok = books.FirstOrDefault(book => book.Id == bookId);
 
 
             if (funnetBok == null)
@@ -310,9 +293,9 @@ namespace UniversitetsSystem
                 return;
             }
 
-            if (funnetBok.AvailableCopies <= 0)
+            if (!funnetBok.BorrowCopy())
             {
-                Console.WriteLine("Ingen eksemplarer tilgjengelig."); // Hvis alle bøkene er lånt ut får bruker beskjed
+                Console.WriteLine("Ingen eksemplarer tilgjengelig.");
                 return;
             }
 
@@ -327,28 +310,14 @@ namespace UniversitetsSystem
                 string studentId = Console.ReadLine();
 
                 // Sjekker om student finnes
-                foreach (Student student in students)
-                {
-                    if (student.StudentID == studentId)
-                    {
-                        borrower = student;
-                        break;
-                    }
-                }
+                borrower = students.FirstOrDefault(student => student.StudentID == studentId);
             }
             else if (valg == "2")
             {
                 Console.Write("Skriv inn EmployeeID: ");
                 string employeeId = Console.ReadLine();
 
-                foreach (Employee employee in employees)
-                {
-                    if (employee.EmployeeID == employeeId)
-                    {
-                        borrower = employee;
-                        break;
-                    }
-                }
+                borrower = employees.FirstOrDefault(employee => employee.EmployeeID == employeeId);
             }
 
             if (borrower == null)
@@ -370,22 +339,11 @@ namespace UniversitetsSystem
 
         // Metode for å returnere bok
         static void ReturnerBok(List<Loan> loans)
-        {   
-            // Input for hvilken bok som skal returneres
+        {
             Console.Write("Skriv inn låne-ID: ");
             string loanId = Console.ReadLine();
 
-            Loan funnetLån = null;
-
-            // Sjekker etter lånt bok
-            foreach (Loan loan in loans)
-            {
-                if (loan.LoanId == loanId)
-                {
-                    funnetLån = loan;
-                    break;
-                }
-            }
+            Loan funnetLån = loans.FirstOrDefault(loan => loan.LoanId == loanId);
 
             if (funnetLån == null)
             {
@@ -399,12 +357,38 @@ namespace UniversitetsSystem
                 return;
             }
 
-            // Oppdaterer etter bok er returnert
             funnetLån.IsReturned = true;
-            funnetLån.Book.AvailableCopies++;
+            funnetLån.Book.ReturnCopy();
 
             Console.WriteLine("Boken ble returnert.");
         }
+
+        // Metode som bruker link for å søke på et kurs
+        static void SøkPåKurs(List<Course> courses)
+        {
+            Console.Write("Skriv inn kurskode eller kursnavn: ");
+            string søk = Console.ReadLine();
+
+            var resultater = courses
+                .Where(course =>
+                    course.Code.ToLower().Contains(søk.ToLower()) ||
+                    course.Name.ToLower().Contains(søk.ToLower()))
+                .ToList();
+
+            if (resultater.Count == 0)
+            {
+                Console.WriteLine("Fant ingen kurs.");
+                return;
+            }
+
+            Console.WriteLine("\nTreff:");
+            foreach (Course course in resultater)
+            {
+                Console.WriteLine($"{course.Code} - {course.Name} ({course.Credits} sp)");
+            }
+        }
+
+        // 
 
     }
 }

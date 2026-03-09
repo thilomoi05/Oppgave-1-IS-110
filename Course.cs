@@ -25,5 +25,25 @@ namespace UniversitetsSystem
         {
             Console.WriteLine($"Kode: {Code}, Navn: {Name}, Studiepoeng: {Credits}, Maks plasser: {MaxStudents}");
         }
+
+        public bool EnrollStudent(Student student)
+        {
+            if (Students.Count >= MaxStudents)
+            {
+                return false;
+            }
+
+            bool alleredePåmeldt = Students.Any(s => s.StudentID == student.StudentID);
+
+            if (alleredePåmeldt)
+            {
+                return false;
+            }
+
+            Students.Add(student);
+            student.Courses.Add(this);
+
+            return true;
+        }
     }
 }
