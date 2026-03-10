@@ -45,5 +45,21 @@ namespace UniversitetsSystem
 
             return true;
         }
+
+        public bool UnenrollStudent(string studentId)
+        {
+            Student student = Students.FirstOrDefault(s => s.StudentID == studentId);
+
+            if (student == null)
+            {
+                return false;
+            }
+
+            Students.Remove(student);
+            student.Courses.Remove(this);
+
+            return true;
+        }
+        
     }
 }

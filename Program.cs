@@ -9,17 +9,7 @@ namespace UniversitetsSystem
         static void Main(string[] args)
         {   
 
-            User u1 = new Student("S200", "Per Olsen", "per@uia.no");
-            User u2 = new Employee("E10", "Anne Hansen", "anne@uia.no", "Foreleser", "IT");
-            User u3 = new ExchangeStudent("S300", "Jean Dupont", "jean@paris.fr", "Sorbonne", "France");
-
-            u1.PrintInfo();
-            u2.PrintInfo();
-            u3.PrintInfo();
-
-            Console.WriteLine("Trykk Enter...");
-            Console.ReadLine();
-
+           
             // Lister for Stduent og Course objekter som er laget
             List<Student> students = new List<Student>();
             List<Course> courses = new List<Course>();
@@ -27,9 +17,20 @@ namespace UniversitetsSystem
             List<Book> books = new List<Book>();
             List<Loan> loans = new List<Loan>();
 
+            // Brukere som ligger i listene å kan manipuleres i systemet
             students.Add(new Student("S100", "Ola Nordmann", "ola@uia.no"));
             students.Add(new Student("S101", "Kari Hansen", "kari@uia.no"));
             employees.Add(new Employee("E200", "Anne Hansen", "anne@uia.no", "Bibliotekar", "Bibliotek"));
+            students.Add(new ExchangeStudent(
+                "S102",
+                "Jean Dupont",
+                "jean@paris.fr",
+                "Sorbonne",
+                "France",
+                new DateTime(2025, 8, 1),
+                new DateTime(2025, 12, 20)
+            ));
+
             // Denne delen velger
             bool kjører = true;
 
@@ -59,8 +60,27 @@ namespace UniversitetsSystem
                         break;
 
                     case "2":
+
+                    Console.WriteLine("[1] Meld student på kurs");
+                    Console.WriteLine("[2] Meld student av kurs");
+                    Console.Write("Velg: ");
+
+                    string valgStudent = Console.ReadLine();
+
+                    if (valgStudent == "1")
+                    {
                         MeldStudentTilKurs(students, courses);
-                        break;
+                    }
+                    else if (valgStudent == "2")
+                    {
+                        MeldStudentAvKurs(courses);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Ugyldig valg.");
+                    }
+
+                    break;
 
                     case "3":
                         PrintKursOgDeltagere(courses);
@@ -71,8 +91,33 @@ namespace UniversitetsSystem
                         break;
 
                     case "5":
+
+                    Console.WriteLine("\n=== BIBLIOTEK ===");
+                    Console.WriteLine("[1] Søk etter bok");
+                    Console.WriteLine("[2] Vis aktive lån");
+                    Console.WriteLine("[3] Vis lånehistorikk");
+                    Console.Write("Velg: ");
+
+                    string valgBibliotek = Console.ReadLine();
+
+                    if (valgBibliotek == "1")
+                    {
                         SøkPåBok(books);
-                        break;
+                    }
+                    else if (valgBibliotek == "2")
+                    {
+                        VisAktiveLån(loans);
+                    }
+                    else if (valgBibliotek == "3")
+                    {
+                        VisLåneHistorikk(loans);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Ugyldig valg.");
+                    }
+
+                    break;
 
                     case "6":
                         LånBok(students, employees, books, loans);
@@ -104,6 +149,7 @@ namespace UniversitetsSystem
             }
         
         }
+        
         // Metode for å opprette kurs
         static void OpprettKurs(List<Course> courses)
         {
@@ -171,7 +217,8 @@ namespace UniversitetsSystem
                 }
             }
         }
-
+        
+        // Metode for å melde student på kurs
         static void MeldStudentTilKurs(List<Student> students, List<Course> courses)
         {
             Console.Write("Skriv inn StudentID: ");
@@ -225,6 +272,35 @@ namespace UniversitetsSystem
                 Console.WriteLine("Kunne ikke melde studenten på kurset.");
             }
 
+        }
+
+        // Metode for å melde student av kurs
+        static void MeldStudentAvKurs(List<Course> courses)
+        {
+            Console.Write("Skriv inn kurskode: ");
+            string courseCode = Console.ReadLine();
+
+            Course funnetKurs = courses.FirstOrDefault(c => c.Code == courseCode);
+
+            if (funnetKurs == null)
+            {
+                Console.WriteLine("Fant ikke kurs.");
+                return;
+            }
+
+            Console.Write("Skriv inn StudentID: ");
+            string studentId = Console.ReadLine();
+
+            bool success = funnetKurs.UnenrollStudent(studentId);
+
+            if (success)
+            {
+                Console.WriteLine("Studenten ble meldt av kurset.");
+            }
+            else
+            {
+                Console.WriteLine("Studenten var ikke meldt på kurset.");
+            }
         }
         
         // Metode som lar brukeren registrere en ny bok ved å fylle inn informasjon som trengs
@@ -388,7 +464,44 @@ namespace UniversitetsSystem
             }
         }
 
-        // 
+        // Metode for å vise aktive lån
+        static void VisAktiveLån(List<Loan> loans)
+        {
+            var aktiveLån = loans.Where(l => !l.IsReturned).ToList();
+
+            if (aktiveLån.Count == 0)
+            {
+                Console.WriteLine("Ingen aktive lån.");
+                return;
+            }
+
+            Console.WriteLine("\n=== AKTIVE LÅN ===");
+
+            foreach (Loan loan in aktiveLån)
+            {
+                loan.PrintInfo();
+            }
+        }
+
+        // Metode for å vise låne historikk
+        static void VisLåneHistorikk(List<Loan> loans)
+        {
+            var historikk = loans.Where(l => l.IsReturned).ToList();
+
+            if (historikk.Count == 0)
+            {
+                Console.WriteLine("Ingen tidligere lån.");
+                return;
+            }
+
+            Console.WriteLine("\n=== LÅNEHISTORIKK ===");
+
+            foreach (Loan loan in historikk)
+            {
+                loan.PrintInfo();
+            }
+        }
+    
 
     }
 }
