@@ -16,15 +16,20 @@ namespace UniversitetsSystem
             List<Employee> employees = new List<Employee>();
             List<Book> books = new List<Book>();
             List<Loan> loans = new List<Loan>();
+            List<Teacher> teachers = new List<Teacher>();
 
             // Brukere som ligger i listene å kan manipuleres i systemet
-            students.Add(new Student("S100", "Ola Nordmann", "ola@uia.no"));
-            students.Add(new Student("S101", "Kari Hansen", "kari@uia.no"));
-            employees.Add(new Employee("E200", "Anne Hansen", "anne@uia.no", "Bibliotekar", "Bibliotek"));
+            students.Add(new Student("S100", "Ola Nordmann", "ola@uia.no", "ola", "1234"));
+            students.Add(new Student("S101", "Kari Hansen", "kari@uia.no", "kari", "1234"));
+            employees.Add(new Librarian("E200", "Anne Hansen", "anne@uia.no", "anne", "1234", "Bibliotek"));
+            employees.Add(new Teacher("E300", "Per Lærer", "per@uia.no", "perlaerer", "1234", "IT"));
+            teachers.Add(new Teacher("E300", "Per Lærer", "per@uia.no", "perlaerer", "1234", "IT"));
             students.Add(new ExchangeStudent(
                 "S102",
                 "Jean Dupont",
                 "jean@paris.fr",
+                "jean",
+                "1234",
                 "Sorbonne",
                 "France",
                 new DateTime(2025, 8, 1),
@@ -120,7 +125,7 @@ namespace UniversitetsSystem
                     break;
 
                     case "6":
-                        LånBok(students, employees, books, loans);
+                        LånBok(students, teachers, books, loans);
                         break;
 
                     case "7":
@@ -353,7 +358,7 @@ namespace UniversitetsSystem
         }
 
         // Metode for at bruker kan låne bok
-        static void LånBok(List<Student> students, List<Employee> employees, List<Book> books, List<Loan> loans)
+        static void LånBok(List<Student> students, List<Teacher> teachers, List<Book> books, List<Loan> loans)
         {   
             // Får bokID av bruker
             Console.Write("Skriv inn bok-ID: ");
@@ -375,7 +380,7 @@ namespace UniversitetsSystem
                 return;
             }
 
-            Console.Write("Er låner [1] Student eller [2] Ansatt? "); // Sjekker om låner er student eller ansatt
+            Console.Write("Er låner [1] Student eller [2] Faglærer? "); // Sjekker om låner er student eller ansatt
             string valg = Console.ReadLine();
 
             IBorrower borrower = null;
@@ -390,10 +395,10 @@ namespace UniversitetsSystem
             }
             else if (valg == "2")
             {
-                Console.Write("Skriv inn EmployeeID: ");
-                string employeeId = Console.ReadLine();
+                Console.Write("Skriv inn TeacherID: ");
+                string teacherId = Console.ReadLine();
 
-                borrower = employees.FirstOrDefault(employee => employee.EmployeeID == employeeId);
+                borrower = teachers.FirstOrDefault(teacher => teacher.EmployeeID == teacherId);
             }
 
             if (borrower == null)
