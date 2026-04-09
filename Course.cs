@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic; // Må være med når lister blir tatt i bruk
+using System.Linq;
 
 namespace UniversitetsSystem
 {
