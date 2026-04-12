@@ -226,52 +226,75 @@ namespace UniversitetsSystem
         
         static void ShowStudentMenu(Student student, UniversitySystem system)
         {
+            bool tilbake = false;
+
+            while (!tilbake)
             {
-                bool tilbake = false;
+                Console.Clear();
+                Console.WriteLine("=== STUDENTMENY ===");
+                Console.WriteLine($"Innlogget som: {student.Name}");
+                Console.WriteLine();
+                Console.WriteLine("[1] Se mine kurs");
+                Console.WriteLine("[2] Meld meg på kurs");
+                Console.WriteLine("[3] Meld meg av kurs");
+                Console.WriteLine("[4] Se mine lån");
+                Console.WriteLine("[5] Søk på bøker");
+                Console.WriteLine("[6] Lån bok");
+                Console.WriteLine("[7] Returner bok");
+                Console.WriteLine("[8] Se mine karakterer");
+                Console.WriteLine("[0] Logg ut");
+                Console.Write("Velg: ");
 
-                while (!tilbake)
+                string valg = Console.ReadLine();
+
+                switch (valg)
                 {
-                    Console.Clear();
-                    Console.WriteLine("=== STUDENTMENY ===");
-                    Console.WriteLine($"Innlogget som: {student.Name}");
-                    Console.WriteLine();
-                    Console.WriteLine("[1] Se mine kurs");
-                    Console.WriteLine("[2] Meld meg på kurs");
-                    Console.WriteLine("[3] Se mine lån");
-                    Console.WriteLine("[0] Logg ut");
-                    Console.Write("Velg: ");
+                    case "1":
+                        ShowStudentCourses(student);
+                        break;
 
-                    string valg = Console.ReadLine();
+                    case "2":
+                        EnrollStudentInCourse(student, system);
+                        break;
 
-                    switch (valg)
-                    {
-                        case "1":
-                            ShowStudentCourses(student);
-                            break;
+                    case "3":
+                        UnenrollStudentFromCourse(student);
+                        break;
 
-                        case "2":
-                            EnrollStudentInCourse(student, system);
-                            break;
+                    case "4":
+                        ShowStudentLoans(student, system);
+                        break;
 
-                        case "3":
-                            ShowStudentLoans(student, system);
-                            break;
+                    case "5":
+                        SøkPåBok(system.Books);
+                        break;
 
-                        case "0":
-                            tilbake = true;
-                            Console.WriteLine("Logger ut...");
-                            break;
+                    case "6":
+                        BorrowBookAsStudent(student, system);
+                        break;
 
-                        default:
-                            Console.WriteLine("Ugyldig valg.");
-                            break;
-                    }
+                    case "7":
+                        ReturnBookAsStudent(student, system);
+                        break;
 
-                    if (!tilbake)
-                    {
-                        Console.WriteLine("\nTrykk Enter for å fortsette...");
-                        Console.ReadLine();
-                    }
+                    case "8":
+                        ShowStudentGrades(student);
+                        break;
+
+                    case "0":
+                        tilbake = true;
+                        Console.WriteLine("Logger ut...");
+                        break;
+
+                    default:
+                        Console.WriteLine("Ugyldig valg.");
+                        break;
+                }
+
+                if (!tilbake)
+                {
+                    Console.WriteLine("\nTrykk Enter for å fortsette...");
+                    Console.ReadLine();
                 }
             }
         }
@@ -340,7 +363,53 @@ namespace UniversitetsSystem
             }
         }
 
+        static void UnenrollStudentFromCourse(Student student)
+        {
+            Console.Clear();
+            Console.WriteLine("=== MELD MEG AV KURS ===");
 
+            if (student.Courses.Count == 0)
+            {
+                Console.WriteLine("Du er ikke meldt på noen kurs.");
+                return;
+            }
+
+            Console.WriteLine("Dine kurs:");
+            for (int i = 0; i < student.Courses.Count; i++)
+            {
+                Course course = student.Courses[i];
+                Console.WriteLine($"[{i + 1}] {course.Code} - {course.Name}");
+            }
+
+            Console.Write("\nVelg kursnummer: ");
+            string input = Console.ReadLine();
+
+            if (!int.TryParse(input, out int valg))
+            {
+                Console.WriteLine("Du må skrive inn et gyldig tall.");
+                return;
+            }
+
+            if (valg < 1 || valg > student.Courses.Count)
+            {
+                Console.WriteLine("Ugyldig valg.");
+                return;
+            }
+
+            Course valgtKurs = student.Courses[valg - 1];
+            bool success = valgtKurs.UnenrollStudent(student.StudentID);
+
+            if (success)
+            {
+                Console.WriteLine($"Du er nå meldt av {valgtKurs.Name}.");
+            }
+            else
+            {
+                Console.WriteLine("Kunne ikke melde deg av kurset.");
+            }
+        }
+
+        
         static void ShowStudentLoans(Student student, UniversitySystem system)
         {
             Console.Clear();
@@ -362,6 +431,111 @@ namespace UniversitetsSystem
             }
         }
 
+        static void ShowStudentGrades(Student student)
+        {
+            Console.Clear();
+            Console.WriteLine("=== MINE KARAKTERER ===");
+
+            if (student.Courses.Count == 0)
+            {
+                Console.WriteLine("Du er ikke meldt på noen kurs.");
+                return;
+            }
+
+            bool fantKarakter = false;
+
+            foreach (Course course in student.Courses)
+            {
+                string grade = course.GetGrade(student.StudentID);
+
+                if (grade != null)
+                {
+                    Console.WriteLine($"{course.Code} - {course.Name}: {grade}");
+                    fantKarakter = true;
+                }
+            }
+
+            if (!fantKarakter)
+            {
+                Console.WriteLine("Ingen karakterer registrert ennå.");
+            }
+        }
+
+        static void BorrowBookAsStudent(Student student, UniversitySystem system)
+        {
+            Console.Clear();
+            Console.WriteLine("=== LÅN BOK ===");
+
+            Console.Write("Skriv inn bok-ID: ");
+            string bookId = Console.ReadLine();
+
+            Book funnetBok = system.Books.FirstOrDefault(book => book.Id == bookId);
+
+            if (funnetBok == null)
+            {
+                Console.WriteLine("Fant ikke bok.");
+                return;
+            }
+
+            if (!funnetBok.BorrowCopy())
+            {
+                Console.WriteLine("Ingen eksemplarer tilgjengelig.");
+                return;
+            }
+
+            string loanId = "L" + (system.Loans.Count + 1);
+            Loan nyttLån = new Loan(loanId, funnetBok, student);
+
+            system.Loans.Add(nyttLån);
+
+            Console.WriteLine("Boken ble lånt.");
+            nyttLån.PrintInfo();
+        }
+
+        static void ReturnBookAsStudent(Student student, UniversitySystem system)
+        {
+            Console.Clear();
+            Console.WriteLine("=== RETURNER BOK ===");
+
+            var mineAktiveLån = system.Loans
+                .Where(loan => loan.Borrower.GetBorrowerId() == student.StudentID && !loan.IsReturned)
+                .ToList();
+
+            if (mineAktiveLån.Count == 0)
+            {
+                Console.WriteLine("Du har ingen aktive lån.");
+                return;
+            }
+
+            Console.WriteLine("Dine aktive lån:");
+            for (int i = 0; i < mineAktiveLån.Count; i++)
+            {
+                Console.Write($"[{i + 1}] ");
+                mineAktiveLån[i].PrintInfo();
+            }
+
+            Console.Write("\nVelg lånenummer: ");
+            string input = Console.ReadLine();
+
+            if (!int.TryParse(input, out int valg))
+            {
+                Console.WriteLine("Du må skrive inn et gyldig tall.");
+                return;
+            }
+
+            if (valg < 1 || valg > mineAktiveLån.Count)
+            {
+                Console.WriteLine("Ugyldig valg.");
+                return;
+            }
+
+            Loan valgtLån = mineAktiveLån[valg - 1];
+            valgtLån.IsReturned = true;
+            valgtLån.Book.ReturnCopy();
+
+            Console.WriteLine("Boken ble returnert.");
+        }
+
 
        static void ShowTeacherMenu(Teacher teacher, UniversitySystem system)
         {
@@ -378,6 +552,11 @@ namespace UniversitetsSystem
                 Console.WriteLine("[3] Meld student på kurs");
                 Console.WriteLine("[4] Meld student av kurs");
                 Console.WriteLine("[5] Søk på kurs");
+                Console.WriteLine("[6] Søk på bøker");
+                Console.WriteLine("[7] Lån bok");
+                Console.WriteLine("[8] Returner bok");
+                Console.WriteLine("[9] Sett karakter");
+                Console.WriteLine("[10] Registrer pensum");
                 Console.WriteLine("[0] Logg ut");
                 Console.Write("Velg: ");
 
@@ -405,6 +584,30 @@ namespace UniversitetsSystem
                         SøkPåKurs(system.Courses);
                         break;
 
+                    case "6":
+                        SøkPåBok(system.Books);
+                        break;
+
+                    case "7":
+                        List<Teacher> teachers = system.Employees
+                            .OfType<Teacher>()
+                            .ToList();
+
+                        LånBok(system.Students, teachers, system.Books, system.Loans);
+                        break;
+
+                   case "8":
+                        ReturnBookAsTeacher(teacher, system);
+                        break;
+
+                    case "9":
+                        SetGradeForStudent(system.Courses);
+                        break;
+
+                    case "10":
+                        RegisterSyllabusForCourse(system.Courses);
+                        break;
+
                     case "0":
                         tilbake = true;
                         Console.WriteLine("Logger ut...");
@@ -423,6 +626,49 @@ namespace UniversitetsSystem
             }
         }
 
+        static void ReturnBookAsTeacher(Teacher teacher, UniversitySystem system)
+        {
+            Console.Clear();
+            Console.WriteLine("=== RETURNER BOK ===");
+
+            var mineAktiveLån = system.Loans
+                .Where(loan => loan.Borrower.GetBorrowerId() == teacher.EmployeeID && !loan.IsReturned)
+                .ToList();
+
+            if (mineAktiveLån.Count == 0)
+            {
+                Console.WriteLine("Du har ingen aktive lån.");
+                return;
+            }
+
+            Console.WriteLine("Dine aktive lån:");
+            for (int i = 0; i < mineAktiveLån.Count; i++)
+            {
+                Console.Write($"[{i + 1}] ");
+                mineAktiveLån[i].PrintInfo();
+            }
+
+            Console.Write("\nVelg lånenummer: ");
+            string input = Console.ReadLine();
+
+            if (!int.TryParse(input, out int valg))
+            {
+                Console.WriteLine("Du må skrive inn et gyldig tall.");
+                return;
+            }
+
+            if (valg < 1 || valg > mineAktiveLån.Count)
+            {
+                Console.WriteLine("Ugyldig valg.");
+                return;
+            }
+
+            Loan valgtLån = mineAktiveLån[valg - 1];
+            valgtLån.IsReturned = true;
+            valgtLån.Book.ReturnCopy();
+
+            Console.WriteLine("Boken ble returnert.");
+        }
 
 
         static void ShowLibrarianMenu(Librarian librarian, UniversitySystem system)
@@ -494,8 +740,6 @@ namespace UniversitetsSystem
             }
         }
 
-
-        
         // Metode for å opprette kurs
         static void OpprettKurs(List<Course> courses)
         {
@@ -504,6 +748,16 @@ namespace UniversitetsSystem
 
             Console.Write("Skriv inn kursnavn: ");
             string name = Console.ReadLine();
+
+            bool kursFinnes = courses.Any(course =>
+                course.Code.ToLower() == code.ToLower() ||
+                course.Name.ToLower() == name.ToLower());
+
+            if (kursFinnes)
+            {
+                Console.WriteLine("Et kurs med samme kurskode eller kursnavn finnes allerede.");
+                return;
+            }
 
             int credits;
 
@@ -649,6 +903,75 @@ namespace UniversitetsSystem
             }
         }
         
+        static void SetGradeForStudent(List<Course> courses)
+        {
+            Console.Clear();
+            Console.WriteLine("=== SETT KARAKTER ===");
+
+            Console.Write("Skriv inn kurskode: ");
+            string courseCode = Console.ReadLine();
+
+            Course funnetKurs = courses.FirstOrDefault(c => c.Code == courseCode);
+
+            if (funnetKurs == null)
+            {
+                Console.WriteLine("Fant ikke kurs.");
+                return;
+            }
+
+            Console.Write("Skriv inn StudentID: ");
+            string studentId = Console.ReadLine();
+
+            Console.Write("Skriv inn karakter: ");
+            string grade = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(grade))
+            {
+                Console.WriteLine("Karakter kan ikke være tom.");
+                return;
+            }
+
+            bool success = funnetKurs.SetGrade(studentId, grade.ToUpper());
+
+            if (success)
+            {
+                Console.WriteLine("Karakter registrert.");
+            }
+            else
+            {
+                Console.WriteLine("Studenten er ikke meldt på dette kurset.");
+            }
+        }
+
+        static void RegisterSyllabusForCourse(List<Course> courses)
+        {
+            Console.Clear();
+            Console.WriteLine("=== REGISTRER PENSUM ===");
+
+            Console.Write("Skriv inn kurskode: ");
+            string courseCode = Console.ReadLine();
+
+            Course funnetKurs = courses.FirstOrDefault(c => c.Code == courseCode);
+
+            if (funnetKurs == null)
+            {
+                Console.WriteLine("Fant ikke kurs.");
+                return;
+            }
+
+            Console.Write("Skriv inn pensumtekst: ");
+            string syllabusItem = Console.ReadLine();
+
+            if (string.IsNullOrWhiteSpace(syllabusItem))
+            {
+                Console.WriteLine("Pensum kan ikke være tomt.");
+                return;
+            }
+
+            funnetKurs.AddSyllabusItem(syllabusItem);
+            Console.WriteLine("Pensum registrert.");
+        }
+
         // Metode som lar brukeren registrere en ny bok ved å fylle inn informasjon som trengs
         static void RegistrerBok(List<Book> books)
         {

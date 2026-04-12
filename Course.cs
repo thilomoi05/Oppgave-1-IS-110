@@ -12,6 +12,8 @@ namespace UniversitetsSystem
         public int MaxStudents { get; set; }
 
         public List<Student> Students { get; set; } // Liste over hvilke studenter som er med i kurset
+        public List<string> Syllabus { get; set; }
+        public Dictionary<string, string> Grades { get; set; }
 
         public Course(string code, string name, int credits, int maxStudents) // Konstruktør for Course klassen
         {
@@ -20,6 +22,8 @@ namespace UniversitetsSystem
             this.Credits = credits;
             this.MaxStudents = maxStudents;
             Students = new List<Student>();
+            Syllabus = new List<string>();
+            Grades = new Dictionary<string, string>();
         }
 
         public void VisInfo()
@@ -60,6 +64,37 @@ namespace UniversitetsSystem
             student.Courses.Remove(this);
 
             return true;
+        }
+
+        public bool SetGrade(string studentId, string grade)
+        {
+            Student student = Students.FirstOrDefault(s => s.StudentID == studentId);
+
+            if (student == null)
+            {
+                return false;
+            }
+
+            Grades[studentId] = grade;
+            return true;
+        }
+
+        public string GetGrade(string studentId)
+        {
+            if (Grades.ContainsKey(studentId))
+            {
+                return Grades[studentId];
+            }
+
+            return null;
+        }
+
+        public void AddSyllabusItem(string item)
+        {
+            if (!string.IsNullOrWhiteSpace(item))
+            {
+                Syllabus.Add(item);
+            }
         }
         
     }
