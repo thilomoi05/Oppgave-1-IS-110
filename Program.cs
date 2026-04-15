@@ -100,6 +100,10 @@ namespace UniversitetsSystem
             system.Courses.Add(c2);
             system.Courses.Add(c3);
 
+            t1.TeachingCourses.Add(c1);
+            t1.TeachingCourses.Add(c2);
+            t1.TeachingCourses.Add(c3);
+
             Book b1 = new Book("B100", "C# for Beginners", "A. Hansen", 2023, 3);
             Book b2 = new Book("B101", "Databaser i praksis", "K. Olsen", 2022, 2);
 
@@ -409,7 +413,7 @@ namespace UniversitetsSystem
             }
         }
 
-        
+
         static void ShowStudentLoans(Student student, UniversitySystem system)
         {
             Console.Clear();
@@ -565,7 +569,7 @@ namespace UniversitetsSystem
                 switch (valg)
                 {
                     case "1":
-                        OpprettKurs(system.Courses);
+                        OpprettKurs(teacher, system.Courses);
                         break;
 
                     case "2":
@@ -601,11 +605,11 @@ namespace UniversitetsSystem
                         break;
 
                     case "9":
-                        SetGradeForStudent(system.Courses);
+                        SetGradeForStudent(teacher);
                         break;
 
                     case "10":
-                        RegisterSyllabusForCourse(system.Courses);
+                        RegisterSyllabusForCourse(teacher);
                         break;
 
                     case "0":
@@ -741,7 +745,7 @@ namespace UniversitetsSystem
         }
 
         // Metode for å opprette kurs
-        static void OpprettKurs(List<Course> courses)
+        static void OpprettKurs(Teacher teacher, List<Course> courses)
         {
             Console.Write("Skriv inn kurskode: ");
             string code = Console.ReadLine();
@@ -779,8 +783,9 @@ namespace UniversitetsSystem
 
             Course nyttKurs = new Course(code, name, credits, maxStudents);
             courses.Add(nyttKurs);
+            teacher.TeachingCourses.Add(nyttKurs);
 
-            Console.WriteLine("Kurset ble opprettet.");
+            Console.WriteLine("Kurset ble opprettet og lagt til dine undervisningskurs.");
         }
 
         // Metode for å printe hvilke kurs som er opprettet og deltagerne i kurset
@@ -903,19 +908,32 @@ namespace UniversitetsSystem
             }
         }
         
-        static void SetGradeForStudent(List<Course> courses)
+        static void SetGradeForStudent(Teacher teacher)
         {
             Console.Clear();
             Console.WriteLine("=== SETT KARAKTER ===");
 
+            if (teacher.TeachingCourses.Count == 0)
+            {
+                Console.WriteLine("Du underviser ingen kurs.");
+                return;
+            }
+
+            Console.WriteLine("Dine kurs:");
+            foreach (Course course in teacher.TeachingCourses)
+            {
+                Console.WriteLine($"{course.Code} - {course.Name}");
+            }
+
             Console.Write("Skriv inn kurskode: ");
             string courseCode = Console.ReadLine();
 
-            Course funnetKurs = courses.FirstOrDefault(c => c.Code == courseCode);
+            Course funnetKurs = teacher.TeachingCourses
+                .FirstOrDefault(c => c.Code.ToLower() == courseCode.ToLower());
 
             if (funnetKurs == null)
             {
-                Console.WriteLine("Fant ikke kurs.");
+                Console.WriteLine("Du underviser ikke dette kurset.");
                 return;
             }
 
@@ -943,19 +961,32 @@ namespace UniversitetsSystem
             }
         }
 
-        static void RegisterSyllabusForCourse(List<Course> courses)
+        static void RegisterSyllabusForCourse(Teacher teacher)
         {
             Console.Clear();
             Console.WriteLine("=== REGISTRER PENSUM ===");
 
+            if (teacher.TeachingCourses.Count == 0)
+            {
+                Console.WriteLine("Du underviser ingen kurs.");
+                return;
+            }
+
+            Console.WriteLine("Dine kurs:");
+            foreach (Course course in teacher.TeachingCourses)
+            {
+                Console.WriteLine($"{course.Code} - {course.Name}");
+            }
+
             Console.Write("Skriv inn kurskode: ");
             string courseCode = Console.ReadLine();
 
-            Course funnetKurs = courses.FirstOrDefault(c => c.Code == courseCode);
+            Course funnetKurs = teacher.TeachingCourses
+                .FirstOrDefault(c => c.Code.ToLower() == courseCode.ToLower());
 
             if (funnetKurs == null)
             {
-                Console.WriteLine("Fant ikke kurs.");
+                Console.WriteLine("Du underviser ikke dette kurset.");
                 return;
             }
 

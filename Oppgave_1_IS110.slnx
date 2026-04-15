@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FirstSession.csproj" />
+  <Project Path="UniversitySystem.Tests/UniversitySystem.Tests.csproj" />
+</Solution>

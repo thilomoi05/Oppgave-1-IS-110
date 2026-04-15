@@ -45,6 +45,21 @@ namespace UniversitetsSystem
             return true;
         }
 
+        public bool AddCourse(Course course)
+        {
+            bool kursFinnes = Courses.Any(c =>
+                c.Code.ToLower() == course.Code.ToLower() ||
+                c.Name.ToLower() == course.Name.ToLower());
 
+            if (kursFinnes)
+            {
+                return false;
+            }
+
+            Courses.Add(course);
+            return true;
+        }
+
+        
     }
 }
